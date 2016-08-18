@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 24
     buildToolsVersion "24.0.1"
-
     defaultConfig {
         applicationId "com.micro.androidjenkins"
         minSdkVersion 15
@@ -17,10 +16,44 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    // 出包重命名
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            File outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                boolean isRelease = "release".equals(variant.buildType.name)
+                String fileName = buildName(defaultConfig.versionName, variant.name, isRelease)
+
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
+    }
+}
+
+// build name
+def buildName(String versionName, String variant, boolean isRelease) {
+    if (isRelease)
+        "XXX-V${versionName}_${variant}.apk"
+    else
+        "XXX_V${versionName}_${buildTime()}_build_${variant}-${buildNumber()}.apk"
+}
+
+// build time
+def buildTime() {
+    // Android Studio bug:时间戳变化了生成的文件名不同导致运行时找不到apk问题
+    new Date().format("yyyy_MM_dd_HH_mm", TimeZone.getTimeZone("GMT+8"))
+//    new Date().format("yyyy", TimeZone.getTimeZone("GMT+8"))
+}
+
+// build number,each build will auto increment
+def buildNumber() {
+    // BUILD_NUMBER is jenkins environment variables or use localhost name
+    System.getenv("BUILD_NUMBER") ?: InetAddress.getLocalHost().hostName
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:24.1.1'
 }
