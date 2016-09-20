@@ -42,8 +42,8 @@ def buildName(String versionName, String variant, boolean isRelease) {
 // build time
 def buildTime() {
     // Android Studio bug:时间戳变化了生成的文件名不同导致运行时找不到apk问题
-    new Date().format("yyyy_MM_dd_HH_mm", TimeZone.getTimeZone("GMT+8"))
-//    new Date().format("yyyy", TimeZone.getTimeZone("GMT+8"))
+//    new Date().format("yyyy_MM_dd_HH_mm", TimeZone.getTimeZone("GMT+8"))
+    new Date().format("yyyy", TimeZone.getTimeZone("GMT+8"))
 }
 
 // build number,each build will auto increment
